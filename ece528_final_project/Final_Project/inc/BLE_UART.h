@@ -30,11 +30,14 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include "msp.h"
 #include "Clock.h"
+#include "inc/EUSCI_A0_UART.h"
 
 // Specifies the size of the buffer used for the BLE UART module
 #define BLE_UART_BUFFER_SIZE 128
+#define BLE_CONTROLLER_READING_SIZE 19
 
 // -Character definitions from ASCII table-
 
@@ -69,5 +72,9 @@ void BLE_UART_OutString(char *pt);
 uint8_t Check_BLE_UART_Data(char BLE_UART_Data_Buffer[], char *data_string);
 
 void BLE_UART_Reset();
+
+uint8_t checkCRC(uint8_t *buffer);
+int BLE_UART_Read_Q_Packet(uint8_t *buffer_pointer, uint16_t buffer_size);
+void Print_Quaternion(uint8_t *buffer_pointer);
 
 #endif /* INC_BLE_UART_H_ */

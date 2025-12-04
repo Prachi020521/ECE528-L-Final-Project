@@ -87,7 +87,8 @@ int main(void)
     Motor_Init();
 
     // Initialize a buffer that will be used to receive command strings from the BLE module
-    char BLE_UART_Buffer[BLE_UART_BUFFER_SIZE] = {0};
+    uint8_t BLE_UART_Buffer[BLE_CONTROLLER_READING_SIZE] = {0};
+    uint8_t BLE_UART_Buffer_Clean[BLE_CONTROLLER_READING_SIZE-1] = {0};
 
     // Enable interrupts used by the modules
     EnableInterrupts();
@@ -102,15 +103,40 @@ int main(void)
 
     while(1)
     {
-        int string_size = BLE_UART_InString(BLE_UART_Buffer, BLE_UART_BUFFER_SIZE);
+
+
+        int packet_size = BLE_UART_Read_Q_Packet(BLE_UART_Buffer, BLE_CONTROLLER_READING_SIZE);
         printf("BLE UART Data: ");
 
-        // Loop through the array to print all characters in the buffer
-        for (int i = 0; i < string_size; i++){
-            printf("%c", BLE_UART_Buffer[i]);
+        // Copy the original data without the first element
+        if(BLE_UART_Buffer[0] != 0x21){
+            for(int i = 0; i < BLE_CONTROLLER_READING_SIZE-1; i++){
+                BLE_UART_Buffer_Clean[i] = BLE_UART_Buffer[i+1];
+            }
         }
-        printf("\n");
-        Process_BLE_UART_DATA(BLE_UART_Buffer);
+        for (int i = 0; i < 2; i++){
+            printf("%c, ", BLE_UART_Buffer_Clean[i]);
+        }
+        float qx;
+        memcpy(&qx, BLE_UART_Buffer_Clean + 2, 4);
+        printf("%f ", qx);
+        float qy;
+        memcpy(&qy, BLE_UART_Buffer_Clean + 6, 4);
+        printf("%f ", qy);
+        float qz;
+        memcpy(&qz, BLE_UART_Buffer_Clean + 10, 4);
+        printf("%f ", qz);
+        float qw;
+        memcpy(&qw, BLE_UART_Buffer_Clean + 14, 4);
+        printf("%f ", qw);
 
+
+
+
+        printf("\r\n");
+        printf("Packet size = %d\r\n", packet_size);
+        uint8_t crc = checkCRC(BLE_UART_Buffer);
+        Print_Quaternion(BLE_UART_Buffer);
+        Clock_Delay1ms(100);
     }
 }

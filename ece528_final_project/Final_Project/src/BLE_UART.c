@@ -107,6 +107,82 @@ void BLE_UART_OutChar(uint8_t data)
     EUSCI_A3->TXBUF = data;
 }
 
+int BLE_UART_Read_Q_Packet(uint8_t *buffer_pointer, uint16_t buffer_size)
+{
+    int length = 0;
+    int packet_size = 0;
+
+    // Read the last received data from the UART receive buffer
+    for(int i = 0; i < buffer_size; i++){
+        uint8_t byte = BLE_UART_InChar();
+
+        // More data to be stored in the buffer
+        if(length < buffer_size){
+            *buffer_pointer = byte;
+            buffer_pointer++;
+            length++;
+            packet_size++;
+        }
+    }
+    return packet_size;
+}
+
+void Print_Quaternion(uint8_t *buffer_pointer)
+{
+    // Check for the Quaternion packet
+    if( (char)buffer_pointer[1] == '!'){
+        if( (char)buffer_pointer[2] == 'Q'){
+            float qx;
+            memcpy(&qx, buffer_pointer + 3, 4);
+            printf("qx: %f \r\n", qx);
+
+            float qy;
+            memcpy(&qy, buffer_pointer + 7, 4);
+            printf("qy: %f \r\n", qy);
+
+            float qz;
+            memcpy(&qz, buffer_pointer + 11, 4);
+            printf("qz: %f \r\n", qz);
+
+            float qw;
+            memcpy(&qw, buffer_pointer + 15, 4);
+            printf("qw: %f \r\n", qw);
+        }
+        else{
+            printf("Quaternion not found\r\n");
+        }
+    }
+    else{
+        printf("Quaternion not found\r\n");
+    }
+}
+
+
+
+uint8_t checkCRC(uint8_t *buffer){
+    uint8_t len = sizeof(buffer);
+    uint8_t crc = buffer[len - 2];
+    uint8_t sum = 0;
+
+    // Sums all data in the packet
+    for(int i = 0; i < (len - 1); i++){
+        sum = sum + buffer[i];
+    }
+    printf("CRC: ");
+    if ((crc & ~sum) == 0){
+        printf("PASS\r\n");
+        return 1;
+    }
+    else{
+        printf("FAIL\r\n");
+        return 0;
+    }
+
+
+}
+
+
+
 int BLE_UART_InString(char *buffer_pointer, uint16_t buffer_size)
 {
     int length = 0;
@@ -179,4 +255,20 @@ void BLE_UART_Reset()
 
     // Switch back to DATA mode by clearing the MOD pin to 0
     P1->OUT &= ~0x40;
+}
+
+
+void Read_Controller (void){
+
+
+
+
+    char identifier[2];
+    identifier[0] = BLE_UART_InChar();
+    identifier[1] = BLE_UART_InChar();
+    for(int i = 0; i < 2; i++){
+        printf("%c", identifier[i]);
+    }
+
+    printf("\r\n");
 }

@@ -107,6 +107,7 @@ void BLE_UART_OutChar(uint8_t data)
     EUSCI_A3->TXBUF = data;
 }
 
+// Quaternion
 int BLE_UART_Read_Q_Packet(uint8_t *buffer_pointer, uint16_t buffer_size)
 {
     int length = 0;
@@ -157,8 +158,6 @@ void Print_Quaternion(uint8_t *buffer_pointer)
     }
 }
 
-
-
 uint8_t checkCRC(uint8_t *buffer){
     uint8_t len = sizeof(buffer);
     uint8_t crc = buffer[len - 2];
@@ -178,10 +177,7 @@ uint8_t checkCRC(uint8_t *buffer){
         return 0;
     }
 
-
 }
-
-
 
 int BLE_UART_InString(char *buffer_pointer, uint16_t buffer_size)
 {
@@ -257,18 +253,16 @@ void BLE_UART_Reset()
     P1->OUT &= ~0x40;
 }
 
-
+/*
 void Read_Controller (void){
-
-
-
 
     char identifier[2];
     identifier[0] = BLE_UART_InChar();
     identifier[1] = BLE_UART_InChar();
+
     for(int i = 0; i < 2; i++){
         printf("%c", identifier[i]);
     }
 
     printf("\r\n");
-}
+}*/

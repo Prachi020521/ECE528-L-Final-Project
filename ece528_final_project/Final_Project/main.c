@@ -28,43 +28,68 @@
 
 // Constant PWM duty cycle for motors
 #define PWM_NOMINAL 4500
+#define PWM_SLOW    3000
 
-void Process_BLE_UART_DATA(char BLE_UART_Buffer[]){
+void Process_BLE_UART_DATA(float qx, float qy, float qz, float qw){
 
     // Check if the user has sent a valid command string
     // If so, perform the corresponding command
-    if(Check_BLE_UART_Data(BLE_UART_Buffer, "LED green ")){
-        LED2_Output(RGB_LED_GREEN);
-    }
-    else if(Check_BLE_UART_Data(BLE_UART_Buffer, "RGB LED OFF")){
-        LED2_Output(RGB_LED_OFF);
-    }
-    // Invalid command string
-    else if(Check_BLE_UART_Data(BLE_UART_Buffer, "MOVE FORWARD 30")){
-        LED2_Output(RGB_LED_BLUE);
-        Motor_Forward(PWM_NOMINAL, PWM_NOMINAL);
-        Clock_Delay1ms(3000);
-        Motor_Stop();
-    }
-    else if(Check_BLE_UART_Data(BLE_UART_Buffer, "MOVE BACKWARD 30")){
-        LED2_Output(RGB_LED_PINK);
-        Motor_Backward(PWM_NOMINAL, PWM_NOMINAL);
-        Clock_Delay1ms(3000);
-        Motor_Stop();
-    }
-    else if(Check_BLE_UART_Data(BLE_UART_Buffer, "ROTATE 180")){
+    // Move forward from quaternion qx value
+
+    // Forward + Right
+    if ( (0.1 < qx) &&  (qx < 0.65) && (0.1 < qy) && (qy < 0.65) )
+    {
+        Motor_Forward(PWM_NOMINAL, PWM_SLOW);
         LED2_Output(RGB_LED_WHITE);
-        Motor_Left(2300, 2300);
-        Clock_Delay1ms(2000);
+
+    }
+    // Forward + Left
+    else if( (0.1 < qx) &&  (qx < 0.65) && (-0.65 < qy) && (qy < -0.1) )
+    {
+        Motor_Forward(PWM_SLOW, PWM_NOMINAL);
+        LED2_Output(0x08);
+    }
+    // Backward + Right
+    else if( (-0.65 < qx) && (qx < -0.1) && (0.1 < qy) && (qy < 0.65) )
+    {
+        Motor_Backward(PWM_NOMINAL, PWM_SLOW);
+        LED2_Output(0x09);
+    }
+    // Backward + Left
+    else if( (-0.65 < qx) && (qx < -0.1) && (-0.65 < qy) && (qy < -0.1) )
+    {
+        Motor_Backward(PWM_SLOW, PWM_NOMINAL);
+        LED2_Output(0x0A);
+    }
+    // Forward
+    else if( (0.1 < qx) &&  (qx < 0.65))
+    {
+        LED2_Output(RGB_LED_GREEN);
         Motor_Forward(PWM_NOMINAL, PWM_NOMINAL);
-        Clock_Delay1ms(2000);
-        Motor_Stop();
+    }
+    // Move backward from quaternion qx value
+    else if ( (-0.65 < qx) && (qx < -0.1))
+    {
+        LED2_Output(RGB_LED_BLUE);
+        Motor_Backward(PWM_NOMINAL, PWM_NOMINAL);
+    }
+    // Turn right at 90 degree and Move forward
+    else if ( (0.1 < qy) && (qy < 0.65))
+    {
+        LED2_Output(RGB_LED_PINK);
+        Motor_Right(2300, 2300);
+    }
+    // Turn left at 90 degree and move forward
+    else if( (-0.65 < qy) && (qy < -0.1))
+    {
+        LED2_Output(RGB_LED_SKY_BLUE);
+        Motor_Left(2300, 2300);
     }
     else{
-        printf("BLE UART command not found.\n");
+        Motor_Stop();
+        LED2_Output(RGB_LED_RED);
     }
 }
-
 
 int main(void)
 {
@@ -104,7 +129,6 @@ int main(void)
     while(1)
     {
 
-
         int packet_size = BLE_UART_Read_Q_Packet(BLE_UART_Buffer, BLE_CONTROLLER_READING_SIZE);
         printf("BLE UART Data: ");
 
@@ -120,23 +144,28 @@ int main(void)
         float qx;
         memcpy(&qx, BLE_UART_Buffer_Clean + 2, 4);
         printf("%f ", qx);
+
         float qy;
         memcpy(&qy, BLE_UART_Buffer_Clean + 6, 4);
         printf("%f ", qy);
+
         float qz;
         memcpy(&qz, BLE_UART_Buffer_Clean + 10, 4);
         printf("%f ", qz);
+
         float qw;
         memcpy(&qw, BLE_UART_Buffer_Clean + 14, 4);
         printf("%f ", qw);
 
-
-
-
         printf("\r\n");
         printf("Packet size = %d\r\n", packet_size);
+
         uint8_t crc = checkCRC(BLE_UART_Buffer);
         Print_Quaternion(BLE_UART_Buffer);
+
         Clock_Delay1ms(100);
+
+        Process_BLE_UART_DATA(qx, qy, qz, qw);
+
     }
 }

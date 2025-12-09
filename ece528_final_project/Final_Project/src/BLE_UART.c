@@ -107,7 +107,7 @@ void BLE_UART_OutChar(uint8_t data)
     EUSCI_A3->TXBUF = data;
 }
 
-// Quaternion
+
 int BLE_UART_Read_Q_Packet(uint8_t *buffer_pointer, uint16_t buffer_size)
 {
     int length = 0;
@@ -160,7 +160,7 @@ void Print_Quaternion(uint8_t *buffer_pointer)
 
 uint8_t checkCRC(uint8_t *buffer){
     uint8_t len = sizeof(buffer);
-    uint8_t crc = buffer[len - 2];
+    uint8_t crc = buffer[len - 1];
     uint8_t sum = 0;
 
     // Sums all data in the packet

@@ -35,9 +35,9 @@
 #include "Clock.h"
 #include "inc/EUSCI_A0_UART.h"
 
-// Specifies the size of the buffer used for the BLE UART module
-#define BLE_UART_BUFFER_SIZE 128
-#define BLE_CONTROLLER_READING_SIZE 19
+// Specifies the size of the array used to store the received BLE data
+#define BLE_UART_BUFFER_SIZE 128        // Used for sending strings
+#define BLE_CONTROLLER_READING_SIZE 19  // Used for quaternion controller
 
 // -Character definitions from ASCII table-
 

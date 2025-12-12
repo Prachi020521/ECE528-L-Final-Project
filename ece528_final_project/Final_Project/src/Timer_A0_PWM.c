@@ -9,7 +9,7 @@
  * @note The Motor driver uses Timer_A0_PWM as a base driver.
  *
  * @author Aaron Nanas
- *
+ * Modified/Completed by Sean Felker and Prachi Patel
  */
 
 #include "../inc/Timer_A0_PWM.h"

@@ -7,7 +7,7 @@
  * adjusting motor speed with PWM, and stopping the motors.
  *
  * @author Aaron Nanas
- *
+ * Modified/Completed by Sean Felker and Prachi Patel
  */
 
 #ifndef INC_MOTOR_H_

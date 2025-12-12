@@ -20,7 +20,7 @@
  * schematic found in the MSP432P401R LaunchPad User's Guide.
  *
  * @author Aaron Nanas
- *
+ * Modified/Completed by Sean Felker and Prachi Patel
  */
 
 #include "../inc/GPIO.h"

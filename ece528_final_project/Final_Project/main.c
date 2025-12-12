@@ -1,18 +1,21 @@
 /**
  * @file main.c
  *
- * @brief Main source code for the BLE_UART program.
+ * @brief Main source code for the Tilt/Gesture Controlled Robot
  *
- * This file contains the main entry point for the BLE_UART program,
- * which is used to demonstrate the BLE_UART driver.
+ * ECE 528/L Final Project
+ * Professor: Aaron Nanas
  *
  * It interfaces with the Adafruit Bluefruit LE UART Friend Bluetooth Low Energy (BLE) module, which uses the UART communication protocol.
  *  - Product Link: https://www.adafruit.com/product/2479
  *
- * @note For more information regarding the Enhanced Universal Serial Communication Interface (eUSCI),
+ * For more information on sensor data packets sent by the Bluefruit Connect app, refer to https://learn.adafruit.com/bluefruit-le-connect/controller
+ *
+ * For more information regarding the Enhanced Universal Serial Communication Interface (eUSCI),
  * refer to the MSP432Pxx Microcontrollers Technical Reference Manual
  *
- * @author
+ * @author Prachi Patel and Sean Felker
+ *
  *
  */
 #include <stdint.h>
@@ -31,10 +34,33 @@
 #define PWM_NOMINAL 4500
 #define PWM_SLOW    3000
 
+// Uncomment one test at a time. Running with both tests commented results in the robot being controlled in vertical phone mode.
 
+/* The Proportional Control test allows the user to control the speed of the robot for driving forward and backward or left and right turns.
+ * The speed is dependent on how much the phone is tilted.
+ */
 //#define TEST_PROPORTIONAL_CONTROL
+
+
+/* The Horizontal Control test allows the user to control the robot holding the phone in a horizontal direction
+ * Either on board push button can be used to switch between horizontal and vertical control modes in this test.
+*/
 //#define TEST_HORIZONTAL_CONTROL
 
+
+/*
+ * @brief Function to drive the robot assuming the user is holding the phone in vertical/portrait mode
+ *
+ * The robot will drive in one of 8 directions depending on the tilt of the phone
+ * The RGB LED color is also determined depending on the direction of the robot
+ *
+ * @param qx: Quaternion value to represent phone orientation in the x axis
+ * @param qy: Quaternion value to represent phone orientation in the y axis
+ * @param qz: Quaternion value to represent phone orientation in the z axis (NOT USED)
+ * @param qw: Quaternion value to represent the magnitude of the phone's rotation from its original state (NOT USED)
+ *
+ * @ return none
+ */
 void Process_BLE_UART_DATA_Vertical(float qx, float qy, float qz, float qw)
 {
 
@@ -94,6 +120,19 @@ void Process_BLE_UART_DATA_Vertical(float qx, float qy, float qz, float qw)
 }
 
 
+/*
+ * @brief Function to drive the robot assuming the user is holding the phone in horizontal/landscape mode
+ *
+ * The robot will drive in one of 8 directions depending on the tilt of the phone
+ * The RGB LED color is also turned on depending on the direction of the robot
+ *
+ * @param qx: Quaternion value to represent phone orientation in the x axis
+ * @param qy: Quaternion value to represent phone orientation in the y axis
+ * @param qz: Quaternion value to represent phone orientation in the z axis (NOT USED)
+ * @param qw: Quaternion value to represent the magnitude of the phone's rotation from its original state (NOT USED)
+ *
+ * @ return none
+ */
 void Process_BLE_UART_DATA_Horizontal(float qx, float qy, float qz, float qw)
 {
     // Forward + Right
@@ -152,7 +191,18 @@ void Process_BLE_UART_DATA_Horizontal(float qx, float qy, float qz, float qw)
 
 }
 
-// NOT TESTED: Calculate PWM duty cycles proportional to how much the phone is tilted
+/*
+ * @brief Function to calculate the PWM values to drive the robot motors for controlling the robot speed based on
+ *        how much the phone is tilted
+ *
+ *  For driving the robot forward/backward and left/right, the same PWM value can be used for both motors (mode = 0 and mode = 1)
+ *  For driving the robot in diagonal directions, the PWM value of one motor must be greater/smaller than the other (mode = 2 and mode = 3)
+ *
+ * @param qx: Quaternion value to represent phone orientation in the x axis
+ * @param qy: Quaternion value to represent phone orientation in the y axis
+ *
+ * @return Calculated PWM value to drive to the motor
+ */
 int Calculate_PWM(float qx, float qy, uint8_t mode)
 {
     float PWM_Value_f;
@@ -161,7 +211,7 @@ int Calculate_PWM(float qx, float qy, uint8_t mode)
 
     // Forward or backward
     if(mode == 0){
-        PWM_Value_f = abs(qx * 10000) - 500;
+        PWM_Value_f = abs(qx * 10000) - 500;    // Scale the qx value up to a PWM value
     }
 
     // Left or right
@@ -191,6 +241,14 @@ int Calculate_PWM(float qx, float qy, uint8_t mode)
     return PWM_Value;
 }
 
+
+/*
+ * @brief Process the quaternion data and drive the motors using the speed control mode.
+ * Assumes the user is holding the phone in vertical/portrait mode
+ * Uses the Calculate_PWM function to drive the motors with a speed based on how much the phone is tilted
+ *
+ *
+ */
 void Process_BLE_UART_DATA_Proportional(float qx, float qy, float qz, float qw)
 {
     uint16_t PWM_Right;
@@ -267,6 +325,14 @@ void Process_BLE_UART_DATA_Proportional(float qx, float qy, float qz, float qw)
 }
 
 
+/*
+ * @brief main function and loop for the tilt/gesture controlled robot
+ *
+ * Initializes the clock, LEDS, buttons, EUSCI modules, motors (TimerA0 + PWM), and necessary variables
+ * The loop receives a packet from the BLE module into an array and processes the quaternion data into individual floating point variables.
+ * If the robot is connected to the host computer, these values are printed.
+ * Then, a function is called to drive the motors based on the quaternion qx and qy data.
+ */
 
 int main(void)
 {
@@ -322,22 +388,24 @@ int main(void)
 
     while(1)
     {
-
+        // Receive and store the quaternion data packet
         packet_size = BLE_UART_Read_Q_Packet(BLE_UART_Buffer, BLE_CONTROLLER_READING_SIZE);
         printf("BLE UART Data: ");
 
         // Copy the original data without the first element
-        // if the first byte is not '!'
+        // if the first byte is not '!'. Occurs in every packet from our testing
         if(BLE_UART_Buffer[0] != 0x21){
             for(int i = 0; i < BLE_CONTROLLER_READING_SIZE-1; i++){
                 BLE_UART_Buffer_Clean[i] = BLE_UART_Buffer[i+1];
             }
         }
+
+        // Print the first two characters of the data packet (!Q)
         for (int i = 0; i < 2; i++){
             printf("%c, ", BLE_UART_Buffer_Clean[i]);
         }
 
-        // Store the quaternion values each into a 4 byte float variable
+        // Copy each of the quaternion values from an array to a 4 byte float variable & print values
         memcpy(&qx, BLE_UART_Buffer_Clean + 2, 4);
         printf("%f ", qx);
 
@@ -356,6 +424,7 @@ int main(void)
         printf("\r\n");
         printf("Packet size = %d\r\n", packet_size);
 
+        // Prints original packet as characters
         printf("BLE UART char data: ");
         for (int i = 0; i < BLE_CONTROLLER_READING_SIZE; i++)
         {
@@ -385,20 +454,20 @@ int main(void)
         }
 
         if(drive_mode == 1){
-            Process_BLE_UART_DATA_Horizontal(qx, qy, qz, qw);
+            Process_BLE_UART_DATA_Horizontal(qx, qy, qz, qw); // Horizontal control mode
         }
         else{
-            Process_BLE_UART_DATA(qx, qy, qz, qw);
+            Process_BLE_UART_DATA_Vertical(qx, qy, qz, qw); // Vertical control mode
         }
 
 #elif defined(TEST_PROPORTIONAL_CONTROL)
-        Process_BLE_UART_DATA_Proportional(qx, qy, qz, qw);
+        Process_BLE_UART_DATA_Proportional(qx, qy, qz, qw); // Speed control mode
 
 #else
-        Process_BLE_UART_DATA_Vertical(qx, qy, qz, qw);
+        Process_BLE_UART_DATA_Vertical(qx, qy, qz, qw); // Vertical control mode
 #endif
 
-        Clock_Delay1ms(100);
+        Clock_Delay1ms(100);    // Delay for the BLE module
 
     }
 }

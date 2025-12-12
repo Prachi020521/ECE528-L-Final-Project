@@ -7,7 +7,7 @@
  * adjusting motor speed with PWM, and stopping the motors.
  *
  * @author Aaron Nanas
- *
+ * Modified/Completed by Sean Felker and Prachi Patel
  */
 
 #include "../inc/Motor.h"

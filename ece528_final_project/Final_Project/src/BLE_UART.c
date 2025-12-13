@@ -108,9 +108,6 @@ void BLE_UART_OutChar(uint8_t data)
     EUSCI_A3->TXBUF = data;
 }
 
-
-
-
 int BLE_UART_InString(char *buffer_pointer, uint16_t buffer_size)
 {
     int length = 0;

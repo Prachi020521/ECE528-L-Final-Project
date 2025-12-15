@@ -82,7 +82,7 @@ Advancement in human machine interaction technologies allow human to communicate
 ### Direction of the Robot Based on Quaternion Readings (Vertical Mode)
 ![Motor Directions](./pictures/motor_directions.png)
 
-### Robot Picture
+### Robot Picture With Connected BLE Module
 ![Robot Picture](./pictures/robot.jpg)
 ## Results
 - Robot movement in 8 directions depending on the tilt of the phone

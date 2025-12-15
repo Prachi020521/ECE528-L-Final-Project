@@ -33,7 +33,8 @@ Advancement in human machine interaction technologies allow human to communicate
 
 - Pins for Motor and RGB LED:
 
-|  |  |  |
+
+|------|-----|-----|
 | **Pin Label** | **Connection** | **Purpose** |
 | P2.0, P2.1, P2.2 | Direct to MSP432 LaunchPad | RGB LED to indicate command status |
 | P2.6 | Direct to MSP432 LaunchPad | Right motor PWM |

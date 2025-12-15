@@ -89,5 +89,8 @@ Advancement in human machine interaction technologies allow human to communicate
 - Speed control mode allows the user to control the speed of the robot based on how much the phone is being tilted (only works for forward, backward, left, and right).
 
 ## Video Demos
-
+- Vertical Mode Demo 1: [Link](https://youtube.com/shorts/mXM_NnY5-LM)
+- Vertical Mode Demo 2: [Link](https://youtube.com/shorts/WuCZ3pLZBGE)
+- Speed Control Mode Demo: [Link](https://youtube.com/shorts/G9cvtJ8V628)
+- Horizontal Control Mode Demo: [Link](https://youtube.com/shorts/uC4DbWXyOzI)
   

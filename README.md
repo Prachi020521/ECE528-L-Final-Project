@@ -19,7 +19,6 @@ Advancement in human machine interaction technologies allow human to communicate
 ## Table of Components
 
 |  |  |  |
-| --- | --- | --- |
 | **Description** | **Quantity** | **Manufacturer** |
 | MSP432 LaunchPad | 1 | Texas Instruments |
 | USB-A to Micro-USB Cable | 1 | N/A |
@@ -35,7 +34,6 @@ Advancement in human machine interaction technologies allow human to communicate
 - Pins for Motor and RGB LED:
 
 |  |  |  |
-| --- | --- | --- |
 | **Pin Label** | **Connection** | **Purpose** |
 | P2.0, P2.1, P2.2 | Direct to MSP432 LaunchPad | RGB LED to indicate command status |
 | P2.6 | Direct to MSP432 LaunchPad | Right motor PWM |
@@ -51,7 +49,6 @@ Advancement in human machine interaction technologies allow human to communicate
 - Adafruit BLE UART Module Pinout:
 
 |  |  |  |
-| --- | --- | --- |
 | **Adafruit BLE UART Module** | **Connection** | **Purpose** |
 | MOD | P1.6 of the MSP432 LaunchPad | To select between the two modes: Command and Data |
 | CTS | GND | BLE module can send data back to the microcontroller |

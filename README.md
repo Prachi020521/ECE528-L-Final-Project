@@ -80,7 +80,7 @@ Advancement in human machine interaction technologies allow human to communicate
 ![Quaternion Readings on MSP432](./pictures/data_readings.png)
 
 ### Direction of the Robot Based on Quaternion Readings (Vertical Mode)
-
+![Motor Directions](./pictures/motor_directions.png)
 
 ## Results
 - Robot movement in 8 directions depending on the tilt of the phone

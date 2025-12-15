@@ -82,6 +82,8 @@ Advancement in human machine interaction technologies allow human to communicate
 ### Direction of the Robot Based on Quaternion Readings (Vertical Mode)
 ![Motor Directions](./pictures/motor_directions.png)
 
+### Robot Picture
+![Robot Picture](./pictures/robot.jpg)
 ## Results
 - Robot movement in 8 directions depending on the tilt of the phone
 - Vertical mode allows the user to control the robot when holding the phone in a vertical/portrait manner
